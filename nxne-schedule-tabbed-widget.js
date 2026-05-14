@@ -482,7 +482,7 @@
 
     /* MODAL — uses position:fixed, IDs scoped under widget container */
     #nxne-full-schedule .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99996;
       display: none; backdrop-filter: blur(4px);
       animation: nxne-fs-fadeOverlay 0.2s ease;
     }
@@ -491,7 +491,7 @@
     #nxne-full-schedule .modal {
       position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
       width: min(560px, 92vw); background: var(--black-2);
-      border: 1px solid var(--cream); z-index: 100; padding: 32px 32px 28px;
+      border: 1px solid var(--cream); z-index: 99997; padding: 32px 32px 28px;
       display: none; max-height: 90vh; overflow-y: auto;
       animation: nxne-fs-modalIn 0.22s cubic-bezier(.2,.8,.2,1);
     }
