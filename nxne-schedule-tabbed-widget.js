@@ -1068,7 +1068,7 @@
         <span class="tab-btn-eyebrow">Conference</span>
         <span class="tab-btn-name">Summit &amp; Panels</span>
       </button>
-      <button class="tab-btn" data-tab="people" onclick="nxneSchedule.setTab('people')">
+      <button class="tab-btn" data-tab="people" onclick="nxneSchedule.setTab('people')" style="display:none">
         <span class="tab-btn-eyebrow">Who's Coming</span>
         <span class="tab-btn-name">People</span>
       </button>
