@@ -914,9 +914,31 @@
     }
     #nxne-full-schedule .person-headshot.no-image {
       display: flex; align-items: center; justify-content: center;
-      color: var(--muted); font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 900; font-size: 56px; letter-spacing: 1px;
+      background:
+        radial-gradient(ellipse at center, rgba(229, 57, 43, 0.08) 0%, transparent 70%),
+        linear-gradient(135deg, var(--black-2) 0%, var(--black-3) 100%);
+      color: var(--red);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900; font-size: 64px; letter-spacing: 2px;
+      text-transform: uppercase;
+      overflow: hidden;
+      position: relative;
     }
+    #nxne-full-schedule .person-headshot.no-image::after {
+      content: '';
+      position: absolute;
+      bottom: 10px; right: 10px;
+      width: 38%; height: 18px;
+      background: url('https://images.squarespace-cdn.com/content/v1/5cc0b65dc2ff616fc1050567/b7ac7bd1-cd63-4fb7-84c3-9daa0d8c6bf5/NXNE26-Logo-RGB-Cream.png?format=300w') right center / contain no-repeat;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    #nxne-full-schedule .person-card:hover .person-headshot.no-image {
+      background:
+        radial-gradient(ellipse at center, rgba(229, 57, 43, 0.16) 0%, transparent 70%),
+        linear-gradient(135deg, var(--black-2) 0%, var(--black-3) 100%);
+    }
+    #nxne-full-schedule .person-card:hover .person-headshot.no-image::after { opacity: 0.55; }
     #nxne-full-schedule .person-card-body { padding: 16px 18px 18px; }
     #nxne-full-schedule .person-role-tag {
       display: inline-block; margin-bottom: 8px;
@@ -965,6 +987,27 @@
       border-bottom: 1px solid var(--border);
       margin: -28px -32px 24px;
       width: calc(100% + 64px);
+      position: relative;
+    }
+    #nxne-full-schedule .person-modal-headshot.no-image {
+      display: flex; align-items: center; justify-content: center;
+      background:
+        radial-gradient(ellipse at center, rgba(229, 57, 43, 0.10) 0%, transparent 75%),
+        linear-gradient(135deg, var(--black-2) 0%, var(--black-3) 100%);
+      color: var(--red);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900; font-size: 92px; letter-spacing: 3px;
+      text-transform: uppercase;
+      overflow: hidden;
+    }
+    #nxne-full-schedule .person-modal-headshot.no-image::after {
+      content: '';
+      position: absolute;
+      bottom: 16px; right: 24px;
+      width: 14%; height: 28px;
+      background: url('https://images.squarespace-cdn.com/content/v1/5cc0b65dc2ff616fc1050567/b7ac7bd1-cd63-4fb7-84c3-9daa0d8c6bf5/NXNE26-Logo-RGB-Cream.png?format=500w') right center / contain no-repeat;
+      opacity: 0.45;
+      pointer-events: none;
     }
     #nxne-full-schedule .person-modal-bio {
       font-family: 'Barlow', sans-serif; font-size: 14.5px;
@@ -1987,6 +2030,9 @@
     let bodyHtml = '';
     if (p.headshotUrl) {
       bodyHtml += '<div class="person-modal-headshot" style="background-image:url(\'' + escapeAttr(p.headshotUrl) + '\')"></div>';
+    } else {
+      const modalInitials = (p.name || '?').split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
+      bodyHtml += '<div class="person-modal-headshot no-image">' + escapeHtml(modalInitials) + '</div>';
     }
     if (p.title) {
       bodyHtml += '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cream-dim);margin-bottom:14px;">' + escapeHtml(p.title) + '</div>';
