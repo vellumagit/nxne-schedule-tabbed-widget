@@ -1158,7 +1158,7 @@
           The people of NXNE 2026 — find your next collaborator, sponsor, or coffee meeting.
         </p>
         <p class="people-hero-cta">
-          New for 2026 — speaking, sponsoring, performing, or attending NXNE? <a href="https://nxne.com/people" target="_blank" rel="noopener">Add yourself so artists, media, and delegates can reach out →</a>
+          Whether you're a speaker, moderator, artist manager, publicist, label rep, journalist, partner, sponsor, agent, producer, promoter, or simply someone active in music and culture attending NXNE, we'd love for you to <a href="https://nxne.com/people" target="_blank" rel="noopener">join the list →</a>
         </p>
       </div>
       <div class="people-filter-strip" id="people-filter-strip"></div>
