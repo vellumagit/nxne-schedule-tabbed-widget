@@ -1417,7 +1417,11 @@
       }
     } catch (err) {
       console.warn('Proxy fetch failed, using fallback events:', err);
-      if (!loaded) processRows(FALLBACK_EVENTS);
+      if (!loaded) {
+        /* Even on proxy failure, surface the hardcoded lead-up events */
+        const hardcodedRows = HARDCODED_EVENTS.map(e => [e.day, e.date, e.time, e.event, e.venue, e.category, e]);
+        processRows(FALLBACK_EVENTS.concat(hardcodedRows));
+      }
     }
   }
 
