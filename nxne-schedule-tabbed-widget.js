@@ -6,14 +6,31 @@
   /* Festival date constants */
   const FEST_YEAR  = 2026;
   const FEST_MONTH = 5; // 0-indexed: June
-  const DAY_KEYS = ['jun10','jun11','jun12','jun13','jun14'];
+  const DAY_KEYS = ['jun10','jun11','jun12','jun13','jun14'];          // festival proper
+  const LEAD_UP_DAYS = ['jun2'];                                       // pre-festival days (not in "All Days" view)
   const DAY_INFO = {
+    jun2:  { name:'Mon', full:'Monday',    date:'June 2',  num:'2',  dom:2,  theme:'Lead-Up Webinar' },
     jun10: { name:'Wed', full:'Wednesday', date:'June 10', num:'10', dom:10, theme:'Opening Day' },
     jun11: { name:'Thu', full:'Thursday',  date:'June 11', num:'11', dom:11, theme:'SYNC & Industry' },
     jun12: { name:'Fri', full:'Friday',    date:'June 12', num:'12', dom:12, theme:'Live & Touring' },
     jun13: { name:'Sat', full:'Saturday',  date:'June 13', num:'13', dom:13, theme:'Artist Day' },
     jun14: { name:'Sun', full:'Sunday',    date:'June 14', num:'14', dom:14, theme:'Closing Out' },
   };
+
+  /* Hardcoded events — always merged with proxy data. Use sparingly for one-offs
+     that don't live in the EVENTS CALENDAR sheet (e.g. pre-festival webinars). */
+  const HARDCODED_EVENTS = [
+    {
+      day: 'Mon',
+      date: 'Jun 2',
+      time: '7:00 PM – 8:00 PM',
+      event: "The Artist's Guide to Showcasing",
+      venue: 'Online webinar',
+      category: 'Industry',
+      ticketUrl: 'https://www.nxne.com/tickets',
+      description: "A webinar on turning showcases into meaningful career steps.\n\nSpeaker: Claire Boning, Misfit Music Inc.\n\nPresented by Misfit Music Inc. & NXNE."
+    }
+  ];
   const DAY_START_HOUR = 10;
   const DAY_END_HOUR   = 27;
   const SLOTS_PER_HOUR = 2;
@@ -180,7 +197,7 @@
       content: ''; display: inline-block; width: 18px; height: 1px; background: var(--red);
     }
     #nxne-full-schedule .day-picker {
-      display: grid; grid-template-columns: repeat(5, 1fr) auto; gap: 10px;
+      display: grid; grid-template-columns: repeat(6, 1fr) auto; gap: 10px;
     }
     #nxne-full-schedule .day-card {
       background: transparent; border: 1px solid var(--border-strong);
@@ -577,7 +594,7 @@
       #nxne-full-schedule .live-chip { display: none; }
       #nxne-full-schedule .day-picker-wrap { padding: 22px 20px 18px; }
       #nxne-full-schedule .day-picker {
-        grid-template-columns: repeat(5, minmax(96px, 1fr)) auto;
+        grid-template-columns: repeat(6, minmax(96px, 1fr)) auto;
         overflow-x: auto; padding-bottom: 4px; gap: 8px;
         scrollbar-width: thin;
       }
@@ -1224,10 +1241,10 @@
   /* ─── TIME / DAY PARSING ──────────────────────────────────── */
   function dayKeyFromDay(d) {
     const v = (d||'').toString().toLowerCase().trim().slice(0,3);
-    return { wed:'jun10', thu:'jun11', fri:'jun12', sat:'jun13', sun:'jun14' }[v] || null;
+    return { mon:'jun2', wed:'jun10', thu:'jun11', fri:'jun12', sat:'jun13', sun:'jun14' }[v] || null;
   }
   function dayKeyFromDate(d) {
-    const m = (d||'').toString().toLowerCase().match(/(jun|june)\s*(1[0-4])/);
+    const m = (d||'').toString().toLowerCase().match(/(jun|june)\s*(1[0-4]|2)\b/);
     return m ? 'jun'+m[2] : null;
   }
   function parseClock(tok) {
@@ -1380,8 +1397,10 @@
 
       if (state.tab === 'people') renderPeople();
 
-      if (events.length) {
-        const rows = events.map(e => [e.day, e.date, e.time, e.event, e.venue, e.category, e]);
+      /* Always include hardcoded lead-up events alongside whatever the proxy returns */
+      const allEvents = events.concat(HARDCODED_EVENTS);
+      if (allEvents.length) {
+        const rows = allEvents.map(e => [e.day, e.date, e.time, e.event, e.venue, e.category, e]);
         processRows(rows);
       } else if (!loaded) {
         processRows(FALLBACK_EVENTS);
@@ -1406,12 +1425,14 @@
   function renderDayPicker() {
     const el = $('day-picker');
     const ctx = getNowContext();
+    /* Render lead-up days first (chronologically), then festival days */
+    const allDayKeys = [...LEAD_UP_DAYS, ...DAY_KEYS];
     const counts = {};
-    DAY_KEYS.forEach(dk => {
+    allDayKeys.forEach(dk => {
       counts[dk] = SCHEDULE.filter(e => e.day === dk).length;
     });
     let html = '';
-    DAY_KEYS.forEach(dk => {
+    allDayKeys.forEach(dk => {
       const info = DAY_INFO[dk];
       const isActive = state.activeDay === dk;
       const isToday = ctx.todayKey === dk;
@@ -1427,7 +1448,8 @@
         '</span>' +
       '</button>';
     });
-    const totalCount = SCHEDULE.length;
+    /* "All Days" card counts only festival days — lead-up events are accessed via their own tab */
+    const totalCount = SCHEDULE.filter(e => DAY_KEYS.includes(e.day)).length;
     html += '<button class="day-card day-card-all ' + (state.activeDay==='all'?'active':'') + '" onclick="nxneSchedule.setActiveDay(\'all\')">' +
       '<div>' +
         '<span class="day-card-name">Full</span>' +
