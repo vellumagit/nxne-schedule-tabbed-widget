@@ -1130,6 +1130,10 @@
         <span class="tab-btn-eyebrow">Conference</span>
         <span class="tab-btn-name">Summit &amp; Panels</span>
       </button>
+      <button class="tab-btn" data-tab="partner-events" onclick="nxneSchedule.setTab('partner-events')">
+        <span class="tab-btn-eyebrow">Activations</span>
+        <span class="tab-btn-name">Partner Events</span>
+      </button>
       <button class="tab-btn" data-tab="panelists" onclick="nxneSchedule.setTab('panelists')" style="display:none">
         <span class="tab-btn-eyebrow">Voices at NXNE</span>
         <span class="tab-btn-name">Panelists</span>
@@ -1170,6 +1174,23 @@
       <div class="summit-day-strip" id="summit-day-strip"></div>
       <div class="summit-list-wrap">
         <div class="summit-list" id="summit-list"></div>
+      </div>
+    </section>
+
+    <section class="tab-pane" data-tab="partner-events" id="pane-partner-events">
+      <div class="summit-hero">
+        <div class="summit-hero-eyebrow">Activations</div>
+        <h2 class="summit-hero-title">Partner Events</h2>
+        <p class="summit-hero-sub">
+          Showcases, activations, and special programming produced with our 2026 partners.
+        </p>
+      </div>
+      <div class="summit-placeholder">
+        <div class="summit-placeholder-eyebrow">Coming soon</div>
+        <div class="summit-placeholder-title">Partner events to be announced shortly</div>
+        <div class="summit-placeholder-text">
+          Check back as we lock in the official partner programming for NXNE 2026.
+        </div>
       </div>
     </section>
 
@@ -2287,10 +2308,11 @@
   function applyHashOnBoot() {
     const h = (window.location.hash || '').replace('#', '');
     if (!h) return;
-    if (h === 'summit')    { setTab('summit',    { fromHash: true }); return; }
-    if (h === 'calendar')  { setTab('calendar',  { fromHash: true }); return; }
-    if (h === 'panelists') { setTab('panelists', { fromHash: true }); return; }
-    if (h === 'industry')  { setTab('industry',  { fromHash: true }); return; }
+    if (h === 'summit')         { setTab('summit',         { fromHash: true }); return; }
+    if (h === 'calendar')       { setTab('calendar',       { fromHash: true }); return; }
+    if (h === 'partner-events') { setTab('partner-events', { fromHash: true }); return; }
+    if (h === 'panelists')      { setTab('panelists',      { fromHash: true }); return; }
+    if (h === 'industry')       { setTab('industry',       { fromHash: true }); return; }
     /* Back-compat: legacy #people deep-link → land on Industry tab */
     if (h === 'people')    { setTab('industry',  { fromHash: true }); return; }
     if (h.startsWith('session-')) {
