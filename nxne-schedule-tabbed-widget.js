@@ -47,7 +47,9 @@
   };
   const DEFAULT_CAT = { color: '#888375' };
 
-  const PEOPLE_FILTER_ORDER = ['Artist','Media','Music Industry Professional','Partner','Sponsor'];
+  /* Filter chips for the Industry tab. Panelist is intentionally excluded — panelists
+     live in their own tab. "Other" is also excluded so the chips stay focused. */
+  const PEOPLE_FILTER_ORDER = ['Artist','Media','Music Industry Professional','NXNE Partner','Sponsor'];
 
   /* Fallback events — used only on cold-start proxy failure. */
   const FALLBACK_EVENTS = [
@@ -100,7 +102,7 @@
   let SUMMIT_SESSIONS = [];
   let PEOPLE          = [];
   let ALL_CATS        = [];
-  let state = { activeCats: new Set(), activeDay: 'jun10', currentEventIdx: null, tab: 'calendar', summitDay: 'all', peopleFilter: 'all' };
+  let state = { activeCats: new Set(), activeDay: 'jun10', currentEventIdx: null, tab: 'calendar', summitDay: 'all', industryFilter: 'all' };
   let loaded = false;
 
   /* ─── CSS — all scoped under #nxne-full-schedule ─────────────── */
@@ -1128,9 +1130,13 @@
         <span class="tab-btn-eyebrow">Conference</span>
         <span class="tab-btn-name">Summit &amp; Panels</span>
       </button>
-      <button class="tab-btn" data-tab="people" onclick="nxneSchedule.setTab('people')" style="display:none">
+      <button class="tab-btn" data-tab="panelists" onclick="nxneSchedule.setTab('panelists')" style="display:none">
+        <span class="tab-btn-eyebrow">Voices at NXNE</span>
+        <span class="tab-btn-name">Panelists</span>
+      </button>
+      <button class="tab-btn" data-tab="industry" onclick="nxneSchedule.setTab('industry')" style="display:none">
         <span class="tab-btn-eyebrow">Who's Coming</span>
-        <span class="tab-btn-name">People</span>
+        <span class="tab-btn-name">Industry</span>
       </button>
     </div>
 
@@ -1167,10 +1173,26 @@
       </div>
     </section>
 
-    <section class="tab-pane" data-tab="people" id="pane-people">
+    <section class="tab-pane" data-tab="panelists" id="pane-panelists">
+      <div class="summit-hero">
+        <div class="summit-hero-eyebrow">Voices at NXNE</div>
+        <h2 class="summit-hero-title">Panelists</h2>
+        <p class="summit-hero-sub">
+          The speakers, moderators, and panelists shaping the conversations at NXNE 2026 — the people behind every panel, talk, and discussion.
+        </p>
+        <p class="people-hero-cta">
+          Speaking, moderating, or hosting at NXNE 2026? <a href="https://nxne.com/people" target="_blank" rel="noopener">Add yourself to the lineup →</a>
+        </p>
+      </div>
+      <div class="people-grid-wrap">
+        <div class="people-grid" id="panelists-grid"></div>
+      </div>
+    </section>
+
+    <section class="tab-pane" data-tab="industry" id="pane-industry">
       <div class="summit-hero">
         <div class="summit-hero-eyebrow">Who's Coming</div>
-        <h2 class="summit-hero-title">People</h2>
+        <h2 class="summit-hero-title">Industry</h2>
         <p class="summit-hero-sub">
           The people of NXNE 2026 — find your next collaborator, sponsor, or coffee meeting.
         </p>
@@ -1178,9 +1200,9 @@
           Whether you're a speaker, moderator, artist manager, publicist, label rep, journalist, partner, sponsor, agent, producer, promoter, or simply someone active in music and culture attending NXNE, we'd love for you to <a href="https://nxne.com/people" target="_blank" rel="noopener">join the list →</a>
         </p>
       </div>
-      <div class="people-filter-strip" id="people-filter-strip"></div>
+      <div class="people-filter-strip" id="industry-filter-strip"></div>
       <div class="people-grid-wrap">
-        <div class="people-grid" id="people-grid"></div>
+        <div class="people-grid" id="industry-grid"></div>
       </div>
     </section>
 
@@ -1395,7 +1417,7 @@
       PEOPLE = people;
       console.log('[NXNE] Loaded ' + events.length + ' events, ' + sessions.length + ' sessions, ' + people.length + ' people from proxy');
 
-      if (state.tab === 'people') renderPeople();
+      if (state.tab === 'panelists' || state.tab === 'industry') renderPeople();
 
       /* Always include hardcoded lead-up events alongside whatever the proxy returns */
       const allEvents = events.concat(HARDCODED_EVENTS);
@@ -1972,12 +1994,55 @@
   /* ─── PEOPLE TAB ──────────────────────────────────────────── */
   function escapeAttr(s) { return String(s || '').replace(/'/g, "\\'"); }
 
-  function renderPeopleFilters() {
-    const el = $('people-filter-strip');
+  /* Per-person card markup — shared between Panelists + Industry tabs.
+     Click handler indexes into the global PEOPLE array so openPersonModal works
+     regardless of which tab the card was rendered into. */
+  function personCardHtml_(p) {
+    const realIdx  = PEOPLE.indexOf(p);
+    const initials = (p.name || '?').split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
+    const heroBg   = p.headshotUrl ? 'style="background-image:url(\'' + escapeAttr(p.headshotUrl) + '\')"' : '';
+    const heroCls  = p.headshotUrl ? '' : ' no-image';
+    const heroBody = p.headshotUrl ? '' : escapeHtml(initials);
+    const tagline  = p.description || p.bio || '';
+    return '<div class="person-card" onclick="nxneSchedule.openPersonModal(' + realIdx + ')">' +
+      '<div class="person-headshot' + heroCls + '" ' + heroBg + '>' + heroBody + '</div>' +
+      '<div class="person-card-body">' +
+        (p.roleType ? '<span class="person-role-tag">' + escapeHtml(p.roleType) + '</span>' : '') +
+        '<div class="person-name">' + escapeHtml(p.name) + '</div>' +
+        ((p.title || p.company) ? '<div class="person-meta">' +
+          (p.title ? escapeHtml(p.title) : '') +
+          (p.title && p.company ? ' · ' : '') +
+          (p.company ? '<strong>' + escapeHtml(p.company) + '</strong>' : '') +
+        '</div>' : '') +
+        (tagline ? '<div class="person-tagline">' + escapeHtml(tagline) + '</div>' : '') +
+      '</div>' +
+    '</div>';
+  }
+
+  function isPanelist_(p) {
+    return (p.roleType || '').toLowerCase() === 'panelist';
+  }
+
+  /* ─── PANELISTS TAB — only roleType === 'Panelist', no filter chips ───────── */
+  function renderPanelists() {
+    const el = $('panelists-grid');
     if (!el) return;
-    if (!PEOPLE.length) { el.innerHTML = ''; return; }
+    const list = PEOPLE.filter(isPanelist_);
+    if (!list.length) {
+      el.innerHTML = '<div class="people-empty" style="grid-column: 1/-1;">Panelist lineup announced shortly. Check back soon.</div>';
+      return;
+    }
+    el.innerHTML = list.map(personCardHtml_).join('');
+  }
+
+  /* ─── INDUSTRY TAB — everyone except panelists, with filter chips ─────────── */
+  function renderIndustryFilters() {
+    const el = $('industry-filter-strip');
+    if (!el) return;
+    const industry = PEOPLE.filter(p => !isPanelist_(p));
+    if (!industry.length) { el.innerHTML = ''; return; }
     const present = new Set();
-    PEOPLE.forEach(p => {
+    industry.forEach(p => {
       const r = (p.roleType || '').trim();
       PEOPLE_FILTER_ORDER.forEach(cat => {
         if (r.toLowerCase() === cat.toLowerCase()) present.add(cat);
@@ -1985,63 +2050,48 @@
     });
     const visibleCats = PEOPLE_FILTER_ORDER.filter(c => present.has(c));
     if (visibleCats.length < 2) { el.innerHTML = ''; return; }
-    let html = '<button class="people-filter-pill ' + (state.peopleFilter==='all'?'active':'') + '" onclick="nxneSchedule.setPeopleFilter(\'all\')">All</button>';
+    let html = '<button class="people-filter-pill ' + (state.industryFilter==='all'?'active':'') + '" onclick="nxneSchedule.setIndustryFilter(\'all\')">All</button>';
     visibleCats.forEach(cat => {
-      const active = state.peopleFilter === cat;
-      html += '<button class="people-filter-pill ' + (active?'active':'') + '" onclick="nxneSchedule.setPeopleFilter(\'' + escapeAttr(cat) + '\')">' + escapeHtml(cat) + '</button>';
+      const active = state.industryFilter === cat;
+      html += '<button class="people-filter-pill ' + (active?'active':'') + '" onclick="nxneSchedule.setIndustryFilter(\'' + escapeAttr(cat) + '\')">' + escapeHtml(cat) + '</button>';
     });
     el.innerHTML = html;
   }
 
-  function setPeopleFilter(cat) {
-    state.peopleFilter = cat;
-    renderPeopleFilters();
-    renderPeopleGrid();
+  function setIndustryFilter(cat) {
+    state.industryFilter = cat;
+    renderIndustryFilters();
+    renderIndustryGrid();
   }
 
-  function renderPeopleGrid() {
-    const el = $('people-grid');
+  function renderIndustryGrid() {
+    const el = $('industry-grid');
     if (!el) return;
-    if (!PEOPLE.length) {
-      el.innerHTML = '<div class="people-empty" style="grid-column: 1/-1;">Speaker lineup announced shortly. Check back soon.</div>';
+    const industry = PEOPLE.filter(p => !isPanelist_(p));
+    if (!industry.length) {
+      el.innerHTML = '<div class="people-empty" style="grid-column: 1/-1;">Industry lineup announced shortly. Check back soon.</div>';
       return;
     }
-    const filterCat = state.peopleFilter;
+    const filterCat = state.industryFilter;
     const list = (filterCat === 'all')
-      ? PEOPLE
-      : PEOPLE.filter(p => (p.roleType || '').toLowerCase() === filterCat.toLowerCase());
+      ? industry
+      : industry.filter(p => (p.roleType || '').toLowerCase() === filterCat.toLowerCase());
     if (!list.length) {
       el.innerHTML = '<div class="people-empty" style="grid-column: 1/-1;">No one in this category yet.</div>';
       return;
     }
-    let html = '';
-    list.forEach(p => {
-      const realIdx = PEOPLE.indexOf(p);
-      const initials = (p.name || '?').split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
-      const heroBg   = p.headshotUrl ? 'style="background-image:url(\'' + escapeAttr(p.headshotUrl) + '\')"' : '';
-      const heroCls  = p.headshotUrl ? '' : ' no-image';
-      const heroBody = p.headshotUrl ? '' : escapeHtml(initials);
-      const tagline  = p.description || p.bio || '';
-      html += '<div class="person-card" onclick="nxneSchedule.openPersonModal(' + realIdx + ')">' +
-        '<div class="person-headshot' + heroCls + '" ' + heroBg + '>' + heroBody + '</div>' +
-        '<div class="person-card-body">' +
-          (p.roleType ? '<span class="person-role-tag">' + escapeHtml(p.roleType) + '</span>' : '') +
-          '<div class="person-name">' + escapeHtml(p.name) + '</div>' +
-          ((p.title || p.company) ? '<div class="person-meta">' +
-            (p.title ? escapeHtml(p.title) : '') +
-            (p.title && p.company ? ' · ' : '') +
-            (p.company ? '<strong>' + escapeHtml(p.company) + '</strong>' : '') +
-          '</div>' : '') +
-          (tagline ? '<div class="person-tagline">' + escapeHtml(tagline) + '</div>' : '') +
-        '</div>' +
-      '</div>';
-    });
-    el.innerHTML = html;
+    el.innerHTML = list.map(personCardHtml_).join('');
   }
 
+  function renderIndustry() {
+    renderIndustryFilters();
+    renderIndustryGrid();
+  }
+
+  /* Composite — both tabs at once. Called on boot and on every cache refresh. */
   function renderPeople() {
-    renderPeopleFilters();
-    renderPeopleGrid();
+    renderPanelists();
+    renderIndustry();
   }
 
   function openPersonModal(idx) {
@@ -2227,17 +2277,22 @@
           }
         });
       }
-    } else if (tab === 'people') {
-      renderPeople();
+    } else if (tab === 'panelists') {
+      renderPanelists();
+    } else if (tab === 'industry') {
+      renderIndustry();
     }
   }
 
   function applyHashOnBoot() {
     const h = (window.location.hash || '').replace('#', '');
     if (!h) return;
-    if (h === 'summit')   { setTab('summit',   { fromHash: true }); return; }
-    if (h === 'calendar') { setTab('calendar', { fromHash: true }); return; }
-    if (h === 'people')   { setTab('people',   { fromHash: true }); return; }
+    if (h === 'summit')    { setTab('summit',    { fromHash: true }); return; }
+    if (h === 'calendar')  { setTab('calendar',  { fromHash: true }); return; }
+    if (h === 'panelists') { setTab('panelists', { fromHash: true }); return; }
+    if (h === 'industry')  { setTab('industry',  { fromHash: true }); return; }
+    /* Back-compat: legacy #people deep-link → land on Industry tab */
+    if (h === 'people')    { setTab('industry',  { fromHash: true }); return; }
     if (h.startsWith('session-')) {
       const slug = h.replace('session-', '');
       setTab('summit', { fromHash: true, anchor: slug });
@@ -2288,7 +2343,7 @@
   window.nxneSchedule = {
     setTab, clearFilters, closeModal, openModal, openPersonModal,
     closePersonModal, openSessionModal, setActiveDay, setSummitDay,
-    setPeopleFilter, toggleCat, jumpToSession, downloadIcs,
+    setIndustryFilter, toggleCat, jumpToSession, downloadIcs,
     openMapFromModal, copyLink, closeMap, revealEmail, copyEmail,
     goToLinkedSession
   };
