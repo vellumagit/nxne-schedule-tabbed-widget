@@ -37,13 +37,14 @@
   const SLOT_COUNT     = (DAY_END_HOUR - DAY_START_HOUR) * SLOTS_PER_HOUR;
 
   const CAT_STYLE = {
-    'Showcase':     { color: '#d94f2b' },
-    'Party':        { color: '#d63a8a' },
-    'Industry':     { color: '#5589c2' },
-    'Awards':       { color: '#9f6fc9' },
-    'Watch Party':  { color: '#3a9968' },
-    'Free Outdoor': { color: '#e89818' },
-    'Hub':          { color: '#c2bd92' },
+    'Showcase':       { color: '#d94f2b' },
+    'Party':          { color: '#d63a8a' },
+    'Industry':       { color: '#5589c2' },
+    'Awards':         { color: '#9f6fc9' },
+    'Watch Party':    { color: '#3a9968' },
+    'Free Outdoor':   { color: '#e89818' },
+    'Partner Events': { color: '#0099a8' },
+    'Hub':            { color: '#c2bd92' },
   };
   const DEFAULT_CAT = { color: '#888375' };
 
@@ -703,10 +704,29 @@
       flex-shrink: 0;
     }
     #nxne-full-schedule .tab-btn:hover { background: rgba(232,228,192,0.06); }
-    #nxne-full-schedule .tab-btn.active {
+    /* Group accent strip — sits flush on the top edge of every tab */
+    #nxne-full-schedule .tab-btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 8px; right: 8px;
+      height: 3px;
+      background: transparent;
+      border-radius: 3px 3px 0 0;
+      pointer-events: none;
+      transition: background 0.18s ease;
+    }
+    #nxne-full-schedule .tab-btn[data-group="events"]::before { background: var(--red); }
+    #nxne-full-schedule .tab-btn[data-group="people"]::before { background: var(--cat-industry); }
+    /* Active state — group color drives the fill + glow */
+    #nxne-full-schedule .tab-btn[data-group="events"].active {
       background: var(--red);
       border-color: var(--red);
       box-shadow: 0 -2px 12px rgba(217,79,43,0.35);
+    }
+    #nxne-full-schedule .tab-btn[data-group="people"].active {
+      background: var(--cat-industry);
+      border-color: var(--cat-industry);
+      box-shadow: 0 -2px 12px rgba(85,137,194,0.35);
     }
     #nxne-full-schedule .tab-btn-eyebrow {
       display: block;
@@ -1122,23 +1142,19 @@
     </div>
 
     <div class="tab-strip" id="tab-strip">
-      <button class="tab-btn active" data-tab="calendar" onclick="nxneSchedule.setTab('calendar')">
+      <button class="tab-btn active" data-tab="calendar" data-group="events" onclick="nxneSchedule.setTab('calendar')">
         <span class="tab-btn-eyebrow">View</span>
         <span class="tab-btn-name">Calendar</span>
       </button>
-      <button class="tab-btn" data-tab="summit" onclick="nxneSchedule.setTab('summit')">
+      <button class="tab-btn" data-tab="summit" data-group="events" onclick="nxneSchedule.setTab('summit')">
         <span class="tab-btn-eyebrow">Conference</span>
         <span class="tab-btn-name">Summit &amp; Panels</span>
       </button>
-      <button class="tab-btn" data-tab="partner-events" onclick="nxneSchedule.setTab('partner-events')">
-        <span class="tab-btn-eyebrow">Activations</span>
-        <span class="tab-btn-name">Partner Events</span>
-      </button>
-      <button class="tab-btn" data-tab="panelists" onclick="nxneSchedule.setTab('panelists')" style="display:none">
+      <button class="tab-btn" data-tab="panelists" data-group="people" onclick="nxneSchedule.setTab('panelists')" style="display:none">
         <span class="tab-btn-eyebrow">Voices at NXNE</span>
         <span class="tab-btn-name">Panelists</span>
       </button>
-      <button class="tab-btn" data-tab="industry" onclick="nxneSchedule.setTab('industry')" style="display:none">
+      <button class="tab-btn" data-tab="industry" data-group="people" onclick="nxneSchedule.setTab('industry')" style="display:none">
         <span class="tab-btn-eyebrow">Who's Coming</span>
         <span class="tab-btn-name">Industry</span>
       </button>
@@ -1174,23 +1190,6 @@
       <div class="summit-day-strip" id="summit-day-strip"></div>
       <div class="summit-list-wrap">
         <div class="summit-list" id="summit-list"></div>
-      </div>
-    </section>
-
-    <section class="tab-pane" data-tab="partner-events" id="pane-partner-events">
-      <div class="summit-hero">
-        <div class="summit-hero-eyebrow">Activations</div>
-        <h2 class="summit-hero-title">Partner Events</h2>
-        <p class="summit-hero-sub">
-          Showcases, activations, and special programming produced with our 2026 partners.
-        </p>
-      </div>
-      <div class="summit-placeholder">
-        <div class="summit-placeholder-eyebrow">Coming soon</div>
-        <div class="summit-placeholder-title">Partner events to be announced shortly</div>
-        <div class="summit-placeholder-text">
-          Check back as we lock in the official partner programming for NXNE 2026.
-        </div>
       </div>
     </section>
 
@@ -1392,7 +1391,7 @@
 
     const cats = new Set();
     SCHEDULE.forEach(s => { if (s.category) cats.add(s.category); });
-    const known = ['Showcase','Party','Industry','Awards','Watch Party','Free Outdoor','Hub'];
+    const known = ['Showcase','Party','Industry','Awards','Watch Party','Free Outdoor','Partner Events','Hub'];
     ALL_CATS = [
       ...known.filter(c => cats.has(c)),
       ...Array.from(cats).filter(c => !known.includes(c)).sort(),
@@ -2310,7 +2309,6 @@
     if (!h) return;
     if (h === 'summit')         { setTab('summit',         { fromHash: true }); return; }
     if (h === 'calendar')       { setTab('calendar',       { fromHash: true }); return; }
-    if (h === 'partner-events') { setTab('partner-events', { fromHash: true }); return; }
     if (h === 'panelists')      { setTab('panelists',      { fromHash: true }); return; }
     if (h === 'industry')       { setTab('industry',       { fromHash: true }); return; }
     /* Back-compat: legacy #people deep-link → land on Industry tab */
