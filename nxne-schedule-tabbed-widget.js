@@ -1024,10 +1024,12 @@
       width: 100%; aspect-ratio: 16/9;
       background: var(--black-3) center/cover no-repeat;
       border-bottom: 1px solid var(--border);
-      margin: -28px -32px 24px;
+      margin: -32px -32px 24px;
       width: calc(100% + 64px);
       position: relative;
     }
+    /* Empty wrap = no headshot (e.g. session modal). Don't leak a gap. */
+    #nxne-full-schedule #person-modal-headshot-wrap:empty { display: none; }
     #nxne-full-schedule .person-modal-headshot.no-image {
       display: flex; align-items: center; justify-content: center;
       background:
@@ -1065,7 +1067,7 @@
       #nxne-full-schedule .person-name { font-size: 16px; }
       #nxne-full-schedule .person-meta { font-size: 12px; }
       #nxne-full-schedule .person-tagline { font-size: 11.5px; }
-      #nxne-full-schedule .person-modal-headshot { aspect-ratio: 1.5; margin: -24px -24px 18px; width: calc(100% + 48px); }
+      #nxne-full-schedule .person-modal-headshot { aspect-ratio: 1.5; margin: -32px -32px 18px; width: calc(100% + 64px); }
     }
     #nxne-full-schedule .modal-btn.full-session {
       border-color: var(--red); color: var(--red);
@@ -1253,6 +1255,7 @@
     <div class="modal-overlay" id="person-modal-overlay" onclick="nxneSchedule.closePersonModal()"></div>
     <div class="modal" id="person-modal">
       <button class="modal-close" onclick="nxneSchedule.closePersonModal()" aria-label="Close">×</button>
+      <div id="person-modal-headshot-wrap"></div>
       <span class="modal-cat" id="person-modal-eyebrow"></span>
       <h3 class="modal-title" id="person-modal-name"></h3>
       <div id="person-modal-body"></div>
@@ -2122,14 +2125,15 @@
     if (p.company)  eyebrowParts.push(p.company);
     $('person-modal-eyebrow').textContent = eyebrowParts.join(' · ');
     $('person-modal-name').textContent = p.name || '';
-    const body = $('person-modal-body');
-    let bodyHtml = '';
+    const headshotWrap = $('person-modal-headshot-wrap');
     if (p.headshotUrl) {
-      bodyHtml += '<div class="person-modal-headshot" style="background-image:url(\'' + escapeAttr(p.headshotUrl) + '\')"></div>';
+      headshotWrap.innerHTML = '<div class="person-modal-headshot" style="background-image:url(\'' + escapeAttr(p.headshotUrl) + '\')"></div>';
     } else {
       const modalInitials = (p.name || '?').split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
-      bodyHtml += '<div class="person-modal-headshot no-image">' + escapeHtml(modalInitials) + '</div>';
+      headshotWrap.innerHTML = '<div class="person-modal-headshot no-image">' + escapeHtml(modalInitials) + '</div>';
     }
+    const body = $('person-modal-body');
+    let bodyHtml = '';
     if (p.title) {
       bodyHtml += '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cream-dim);margin-bottom:14px;">' + escapeHtml(p.title) + '</div>';
     }
@@ -2172,6 +2176,7 @@
     if (s.venue && s.venue !== 'TBA') eyebrowParts.push(s.venue);
     $('person-modal-eyebrow').textContent = eyebrowParts.join(' · ');
     $('person-modal-name').textContent = s.title || '';
+    $('person-modal-headshot-wrap').innerHTML = '';
     const body = $('person-modal-body');
     let bodyHtml = '';
     const dayLabel = (DAY_INFO[s.day] || {}).full || s.day || '';
