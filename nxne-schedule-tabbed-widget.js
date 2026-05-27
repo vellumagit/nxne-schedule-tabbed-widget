@@ -1021,8 +1021,10 @@
       animation: nxne-fs-sessionFlash 1.6s ease-out;
     }
     #nxne-full-schedule .person-modal-headshot {
-      width: 100%; aspect-ratio: 16/9;
-      background: var(--black-3) center/cover no-repeat;
+      width: 100%; aspect-ratio: 4/3;
+      background: var(--black-3) no-repeat;
+      background-size: cover;
+      background-position: center 20%;
       border-bottom: 1px solid var(--border);
       margin: -32px -32px 24px;
       width: calc(100% + 64px);
@@ -1067,7 +1069,7 @@
       #nxne-full-schedule .person-name { font-size: 16px; }
       #nxne-full-schedule .person-meta { font-size: 12px; }
       #nxne-full-schedule .person-tagline { font-size: 11.5px; }
-      #nxne-full-schedule .person-modal-headshot { aspect-ratio: 1.5; margin: -32px -32px 18px; width: calc(100% + 64px); }
+      #nxne-full-schedule .person-modal-headshot { aspect-ratio: 4/3; margin: -32px -32px 18px; width: calc(100% + 64px); }
     }
     #nxne-full-schedule .modal-btn.full-session {
       border-color: var(--red); color: var(--red);
