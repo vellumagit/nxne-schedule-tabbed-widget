@@ -568,6 +568,20 @@
     #nxne-full-schedule .modal-btn:hover { background: var(--cream); color: var(--black); }
     #nxne-full-schedule .modal-btn.primary { background: var(--red); border-color: var(--red); color: var(--cream); }
     #nxne-full-schedule .modal-btn.primary:hover { background: var(--red-bright); border-color: var(--red-bright); }
+    /* Hero CTA — top-of-modal, largest button. Used for session-specific links
+       like Next Level Panels "Get more info". */
+    #nxne-full-schedule .modal-btn.hero {
+      flex: 1 0 100%;
+      background: var(--red); border-color: var(--red); color: var(--cream);
+      font-size: 16px; letter-spacing: 2.5px;
+      padding: 18px 20px; margin-bottom: 6px;
+      box-shadow: 0 4px 14px rgba(217,79,43,0.28);
+    }
+    #nxne-full-schedule .modal-btn.hero:hover {
+      background: var(--red-bright); border-color: var(--red-bright); color: var(--cream);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(217,79,43,0.4);
+    }
     #nxne-full-schedule .modal-btn.copied { background: var(--cat-watch); border-color: var(--cat-watch); color: var(--cream); }
     #nxne-full-schedule .modal-close {
       position: absolute; top: 14px; right: 18px; background: none;
@@ -2222,6 +2236,11 @@
     body.innerHTML = bodyHtml;
     const actionsEl = $('person-modal-actions');
     const actions = [];
+    // Hero CTA: Next Level Panels (LIVE + Artist Day) link to their info page.
+    // Matches any session title containing "next level panels" (case/space-insensitive).
+    if (s.title && /next\s*level\s*panels/i.test(s.title)) {
+      actions.push('<a class="modal-btn hero" href="https://www.nxne.com/next-level-panels-2026" target="_blank" rel="noopener">→ Get more info</a>');
+    }
     const matchedEvent = findEventForSession_(s);
     if (matchedEvent !== -1) {
       actions.push('<button class="modal-btn full-session" onclick="nxneSchedule.closePersonModal();nxneSchedule.setTab(\'calendar\');setTimeout(function(){nxneSchedule.openModal(' + matchedEvent + ')},200);">→ View on calendar</button>');
