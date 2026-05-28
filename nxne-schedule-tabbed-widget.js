@@ -1904,9 +1904,11 @@
   /*  Per-venue address overrides — used when the venue name alone returns
    *  the wrong place on Google Maps. Keys are lowercased substrings of the
    *  venue name as it appears in the sheet; values are the exact address.
-   *  Resolution: exact match first, then substring match. */
+   *  Resolution: exact match first, then substring match.
+   *  (The displayed venue label is unaffected — only the Maps iframe and
+   *  the "Open in Google Maps" link use the overridden address.) */
   const VENUE_MAP_OVERRIDES = {
-    'w hotel soundstage': '90 Bloor St E, Toronto, ON M4W 1A7',
+    'soundstage': '90 Bloor St E, Toronto, ON M4W 1A7',  // Soundstage @ W Hotel
   };
   function resolveVenueAddress_(venueName) {
     const lower = venueName.toLowerCase().trim();
