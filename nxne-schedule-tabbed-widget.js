@@ -1258,6 +1258,7 @@
       <div class="modal-row"><span class="label">Time</span><span class="val" id="modal-time"></span></div>
       <div class="modal-row"><span class="label">Venue</span><span class="val" id="modal-venue"></span></div>
       <div class="modal-actions">
+        <a class="modal-btn hero" id="modal-info" href="#" target="_blank" rel="noopener" style="display:none">→ Get more info</a>
         <button class="modal-btn full-session" id="modal-session" onclick="nxneSchedule.jumpToSession()" style="display:none">→ View full session</button>
         <a class="modal-btn primary" id="modal-tickets" href="#" target="_blank" rel="noopener" style="display:none">🎟 Get tickets</a>
         <a class="modal-btn full-session" id="modal-lineup" href="#" target="_blank" rel="noopener" style="display:none">♪ View lineup</a>
@@ -1803,6 +1804,18 @@
     shareBtn.textContent = '⎘ Copy link';
     const sessionBtn = $('modal-session');
     if (sessionBtn) sessionBtn.style.display = 'none';
+
+    // Next Level Panels — both LIVE day + ARTIST day get a hero CTA linking
+    // to the dedicated info page. Matches any event title containing the phrase.
+    const infoBtn = $('modal-info');
+    if (infoBtn) {
+      if (e.event && /next\s*level\s*panels/i.test(e.event)) {
+        infoBtn.href = 'https://www.nxne.com/next-level-panels-2026';
+        infoBtn.style.display = '';
+      } else {
+        infoBtn.style.display = 'none';
+      }
+    }
 
     const ticketBtn = $('modal-tickets');
     if (e.ticketUrl) { ticketBtn.href = e.ticketUrl; ticketBtn.style.display = ''; }
