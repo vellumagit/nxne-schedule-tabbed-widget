@@ -1901,10 +1901,23 @@
   }
 
   /* ─── MAP SIDE PANEL ──────────────────────────────────────── */
+  /*  Per-venue address overrides — used when the venue name alone returns
+   *  the wrong place on Google Maps. Keys are lowercased substrings of the
+   *  venue name as it appears in the sheet; values are the exact address.
+   *  Resolution: exact match first, then substring match. */
+  const VENUE_MAP_OVERRIDES = {
+    'w hotel soundstage': '90 Bloor St E, Toronto, ON M4W 1A7',
+  };
+  function resolveVenueAddress_(venueName) {
+    const lower = venueName.toLowerCase().trim();
+    if (VENUE_MAP_OVERRIDES[lower]) return VENUE_MAP_OVERRIDES[lower];
+    const key = Object.keys(VENUE_MAP_OVERRIDES).find(k => lower.includes(k));
+    return key ? VENUE_MAP_OVERRIDES[key] : (venueName + ' Toronto ON');
+  }
   function openMap(venueName) {
     if (!venueName) return;
     $('nxne-map-name').textContent = venueName;
-    const q = encodeURIComponent(venueName + ' Toronto ON');
+    const q = encodeURIComponent(resolveVenueAddress_(venueName));
     $('nxne-map-frame').src = 'https://maps.google.com/maps?q=' + q + '&output=embed&z=16';
     $('nxne-map-gmaps').href = 'https://www.google.com/maps/search/' + q;
     $('nxne-map-panel').classList.add('open');
