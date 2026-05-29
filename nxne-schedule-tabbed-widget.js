@@ -8,13 +8,15 @@
   const FEST_MONTH = 5; // 0-indexed: June
   const DAY_KEYS = ['jun10','jun11','jun12','jun13','jun14'];          // festival proper
   const LEAD_UP_DAYS = ['jun2'];                                       // pre-festival days (not in "All Days" view)
+  /* Day themes intentionally blank — re-enable per-day labels by filling in
+     a string for any theme below; the render sites already handle empty. */
   const DAY_INFO = {
-    jun2:  { name:'Mon', full:'Monday',    date:'June 2',  num:'2',  dom:2,  theme:'Lead-Up Webinar' },
-    jun10: { name:'Wed', full:'Wednesday', date:'June 10', num:'10', dom:10, theme:'Opening Day' },
-    jun11: { name:'Thu', full:'Thursday',  date:'June 11', num:'11', dom:11, theme:'SYNC & Industry' },
-    jun12: { name:'Fri', full:'Friday',    date:'June 12', num:'12', dom:12, theme:'Live & Touring' },
-    jun13: { name:'Sat', full:'Saturday',  date:'June 13', num:'13', dom:13, theme:'Artist Day' },
-    jun14: { name:'Sun', full:'Sunday',    date:'June 14', num:'14', dom:14, theme:'Closing Out' },
+    jun2:  { name:'Mon', full:'Monday',    date:'June 2',  num:'2',  dom:2,  theme:'' },
+    jun10: { name:'Wed', full:'Wednesday', date:'June 10', num:'10', dom:10, theme:'' },
+    jun11: { name:'Thu', full:'Thursday',  date:'June 11', num:'11', dom:11, theme:'' },
+    jun12: { name:'Fri', full:'Friday',    date:'June 12', num:'12', dom:12, theme:'' },
+    jun13: { name:'Sat', full:'Saturday',  date:'June 13', num:'13', dom:13, theme:'' },
+    jun14: { name:'Sun', full:'Sunday',    date:'June 14', num:'14', dom:14, theme:'' },
   };
 
   /* Hardcoded events — always merged with proxy data. Use sparingly for one-offs
@@ -1509,7 +1511,7 @@
         '<span class="day-card-num">' + info.num + '</span>' +
         '<span class="day-card-month">June</span>' +
         '<span class="day-card-meta">' +
-          '<span class="day-card-theme">' + info.theme + '</span>' +
+          (info.theme ? '<span class="day-card-theme">' + info.theme + '</span>' : '') +
           (counts[dk] || 0) + ' events' +
         '</span>' +
       '</button>';
@@ -1680,7 +1682,7 @@
       const liveCount = isToday ? SCHEDULE.filter(e => e.day === state.activeDay && isEventLive(e)).length : 0;
       headline.innerHTML =
         '<span class="day-headline-name">' + info.full + '</span>' +
-        '<span class="day-headline-date">' + info.date + ' · ' + info.theme + '</span>' +
+        '<span class="day-headline-date">' + info.date + (info.theme ? ' · ' + info.theme : '') + '</span>' +
         (liveCount > 0 ? '<span class="day-headline-now"><span class="live-dot"></span>' + liveCount + ' live now</span>' : '');
     }
 
@@ -1719,7 +1721,7 @@
 
       html += '<div class="day-headline">' +
         '<span class="day-headline-name">' + info.full + '</span>' +
-        '<span class="day-headline-date">' + info.date + ' · ' + info.theme + '</span>' +
+        '<span class="day-headline-date">' + info.date + (info.theme ? ' · ' + info.theme : '') + '</span>' +
         (liveCount > 0 ? '<span class="day-headline-now"><span class="live-dot"></span>' + liveCount + ' live</span>' : '') +
       '</div>';
 
