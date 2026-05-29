@@ -1174,7 +1174,7 @@
         <span class="tab-btn-eyebrow">Voices at NXNE</span>
         <span class="tab-btn-name">Panelists</span>
       </button>
-      <button class="tab-btn" data-tab="industry" data-group="people" onclick="nxneSchedule.setTab('industry')" style="display:none">
+      <button class="tab-btn" data-tab="industry" data-group="people" onclick="nxneSchedule.setTab('industry')">
         <span class="tab-btn-eyebrow">Who's Coming</span>
         <span class="tab-btn-name">Industry</span>
       </button>
