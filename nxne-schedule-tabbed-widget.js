@@ -794,9 +794,11 @@
       color: var(--cream); opacity: 0.78; line-height: 1.55; max-width: 60ch;
     }
     #nxne-full-schedule .people-hero-cta {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase;
+      font-family: 'Barlow', sans-serif; font-weight: 500;
+      font-size: 15px; line-height: 1.6;
+      letter-spacing: 0; text-transform: none;
       color: var(--cream); margin-top: 18px;
+      max-width: 70ch;
     }
     #nxne-full-schedule .people-hero-cta a {
       color: var(--red); text-decoration: none;
@@ -1168,7 +1170,7 @@
       </button>
       <button class="tab-btn" data-tab="summit" data-group="events" onclick="nxneSchedule.setTab('summit')">
         <span class="tab-btn-eyebrow">Conference</span>
-        <span class="tab-btn-name">Summit &amp; Panels</span>
+        <span class="tab-btn-name">Panels</span>
       </button>
       <button class="tab-btn" data-tab="panelists" data-group="people" onclick="nxneSchedule.setTab('panelists')" style="display:none">
         <span class="tab-btn-eyebrow">Voices at NXNE</span>
