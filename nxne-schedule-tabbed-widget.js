@@ -20,7 +20,9 @@
   };
 
   /* Hardcoded events — always merged with proxy data. Use sparingly for one-offs
-     that don't live in the EVENTS CALENDAR sheet (e.g. pre-festival webinars). */
+     that don't live in the EVENTS CALENDAR sheet (e.g. pre-festival webinars,
+     last-minute partner additions). Each entry needs day/date/time/event/venue
+     /category. ticketUrl + description optional. */
   const HARDCODED_EVENTS = [
     {
       day: 'Mon',
@@ -31,6 +33,26 @@
       category: 'Industry',
       ticketUrl: 'https://www.nxne.com/tickets',
       description: "A webinar on turning showcases into meaningful career steps.\n\nSpeaker: Claire Boning, Misfit Music Inc.\n\nPresented by Misfit Music Inc. & NXNE."
+    },
+    {
+      day: 'Wed',
+      date: 'Jun 10',
+      time: '7:00 PM – 9:00 PM',
+      event: "Rolling Stone Creator Series with Fridayy",
+      venue: 'TIFF Lightbox',
+      category: 'Partner Events',
+      ticketUrl: 'https://www.nxne.com/tickets',
+      description: "An intimate Rolling Stone creator conversation featuring Fridayy.\n\nDoors at 7 PM. Sessions begin at 8 PM.\n\nPresented by Rolling Stone × NXNE."
+    },
+    {
+      day: 'Thu',
+      date: 'Jun 11',
+      time: '4:00 PM – 6:00 PM',
+      event: "TIME Magazine Launch",
+      venue: 'TIFF Lightbox',
+      category: 'Partner Events',
+      ticketUrl: 'https://www.nxne.com/tickets',
+      description: "TIME Magazine launch event at NXNE 2026.\n\nDoors at 4 PM. Program begins at 5 PM."
     }
   ];
   const DAY_START_HOUR = 10;
