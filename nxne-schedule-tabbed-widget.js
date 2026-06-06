@@ -53,6 +53,16 @@
       category: 'Partner Events',
       ticketUrl: 'https://www.nxne.com/tickets',
       description: "TIME Magazine launch event at NXNE 2026.\n\nDoors at 4 PM. Program begins at 5 PM."
+    },
+    {
+      day: 'Sun',
+      date: 'Jun 14',
+      time: '8:00 PM – 11:00 PM',
+      event: "SPIN Canada Showcase: Nemahsis",
+      venue: 'Soundstage - W Toronto',
+      category: 'Showcase',
+      ticketUrl: 'https://www.nxne.com/tickets',
+      description: "SPIN Canada Showcase featuring Nemahsis at Soundstage (W Toronto).\n\nDoors at 7 PM. Show at 8 PM."
     }
   ];
   const DAY_START_HOUR = 10;
