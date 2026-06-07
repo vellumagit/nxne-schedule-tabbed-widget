@@ -65,6 +65,44 @@
       description: "SPIN Canada Showcase featuring Nemahsis at Soundstage (W Toronto).\n\nDoors at 7 PM. Show at 8 PM."
     }
   ];
+
+  /* Event blocklist — case-insensitive substring match on event title.
+     Anything matching gets dropped from the calendar before render. Use to
+     hide events that exist in the sheet but shouldn't render publicly. */
+  const EVENT_BLOCKLIST = [
+    'rolling stone summit',   // doesn't exist — per Michael's notes
+  ];
+
+  /* Event overrides — match by event title (substring) + optional day, then
+     shallow-merge `set` into the event row. Use to cosmetically fix what's
+     in the sheet without an Apps Script change. Match criteria are AND'd. */
+  const EVENT_OVERRIDES = [
+    // Registration runs 10am-7pm every day (per Michael — was incorrectly
+    // 10am-8pm or "All Day" depending on cell content). Matches all 4 days.
+    {
+      match: { eventIncludes: 'registration' },
+      set: { time: '10:00 AM – 7:00 PM' }
+    },
+  ];
+
+  function applyCalendarEventOverrides(events) {
+    return events
+      .filter(e => {
+        const t = (e.event||'').toLowerCase();
+        return !EVENT_BLOCKLIST.some(b => t.includes(b));
+      })
+      .map(e => {
+        const t = (e.event||'').toLowerCase();
+        const d = (e.day||'').toLowerCase();
+        for (const rule of EVENT_OVERRIDES) {
+          const m = rule.match || {};
+          if (m.day && d !== m.day.toLowerCase()) continue;
+          if (m.eventIncludes && !t.includes(m.eventIncludes.toLowerCase())) continue;
+          Object.assign(e, rule.set);
+        }
+        return e;
+      });
+  }
   const DAY_START_HOUR = 10;
   const DAY_END_HOUR   = 27;
   const SLOTS_PER_HOUR = 2;
@@ -1202,7 +1240,7 @@
       </button>
       <button class="tab-btn" data-tab="summit" data-group="events" onclick="nxneSchedule.setTab('summit')">
         <span class="tab-btn-eyebrow">Conference</span>
-        <span class="tab-btn-name">Panels</span>
+        <span class="tab-btn-name">Calendar Detail</span>
       </button>
       <button class="tab-btn" data-tab="panelists" data-group="people" onclick="nxneSchedule.setTab('panelists')" style="display:none">
         <span class="tab-btn-eyebrow">Voices at NXNE</span>
@@ -1235,7 +1273,7 @@
     <section class="tab-pane" data-tab="summit" id="pane-summit">
       <div class="summit-hero">
         <div class="summit-hero-eyebrow">Conference Programming</div>
-        <h2 class="summit-hero-title">Summit <em>&amp; Panels</em></h2>
+        <h2 class="summit-hero-title">Calendar <em>Detail</em></h2>
         <p class="summit-hero-sub">
           Every event at NXNE 2026 — conversations, showcases, parties, and panels — laid out day by day.
           Tap any event for full details.
@@ -1495,8 +1533,10 @@
 
       if (state.tab === 'panelists' || state.tab === 'industry') renderPeople();
 
-      /* Always include hardcoded lead-up events alongside whatever the proxy returns */
-      const allEvents = events.concat(HARDCODED_EVENTS);
+      /* Always include hardcoded lead-up events alongside whatever the proxy returns,
+         then run the blocklist + override pipeline so cosmetic fixes don't require
+         a sheet edit. Order: proxy events first, hardcoded appended, then filter+map. */
+      const allEvents = applyCalendarEventOverrides(events.concat(HARDCODED_EVENTS));
       if (allEvents.length) {
         const rows = allEvents.map(e => [e.day, e.date, e.time, e.event, e.venue, e.category, e]);
         processRows(rows);
@@ -2126,11 +2166,52 @@
     return (p.roleType || '').toLowerCase() === 'panelist';
   }
 
-  /* ─── PANELISTS TAB — only roleType === 'Panelist', no filter chips ───────── */
+  /* Builds the combined panelist list: PEOPLE-tab Panelists plus any speakers/
+     moderators surfaced in session data who don't already have a PEOPLE entry.
+     Synthetic session-derived cards carry name + role + linked session, no bio
+     or headshot — they'll render with initials until the person submits their
+     own bio via the form. Dedup is name-based, case-insensitive. */
+  function getCombinedPanelists_() {
+    const fromPeople = PEOPLE.filter(isPanelist_);
+    const byName = {};
+    fromPeople.forEach(p => {
+      const k = (p.name || '').toLowerCase().trim();
+      if (k) byName[k] = p;
+    });
+    (SUMMIT_SESSIONS || []).forEach(s => {
+      const sessionTitle = s.title || '';
+      const sessionSlug  = s.id || '';
+      const speakers = [];
+      if (s.moderator) speakers.push(s.moderator);
+      if (Array.isArray(s.panelists)) speakers.push(...s.panelists);
+      speakers.forEach(p => {
+        if (!p || !p.name) return;
+        const k = p.name.toLowerCase().trim();
+        if (!k || byName[k]) return; // already have a fuller PEOPLE record
+        byName[k] = {
+          name:              p.name,
+          roleType:          'Panelist',
+          title:             p.role || '',
+          company:           '',
+          bio:               '',
+          description:       '',
+          contactEmail:      '',
+          linkedSession:     sessionTitle,
+          linkedSessionSlug: sessionSlug,
+          headshotUrl:       '',
+          companyLogoUrl:    '',
+          websiteUrl:        '',
+        };
+      });
+    });
+    return Object.values(byName);
+  }
+
+  /* ─── PANELISTS TAB — PEOPLE roleType=Panelist + session-derived panelists ── */
   function renderPanelists() {
     const el = $('panelists-grid');
     if (!el) return;
-    const list = PEOPLE.filter(isPanelist_);
+    const list = getCombinedPanelists_();
     if (!list.length) {
       el.innerHTML = '<div class="people-empty" style="grid-column: 1/-1;">Panelist lineup announced shortly. Check back soon.</div>';
       return;
