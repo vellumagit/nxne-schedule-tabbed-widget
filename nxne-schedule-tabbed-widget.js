@@ -1242,7 +1242,7 @@
         <span class="tab-btn-eyebrow">Conference</span>
         <span class="tab-btn-name">Calendar Detail</span>
       </button>
-      <button class="tab-btn" data-tab="panelists" data-group="people" onclick="nxneSchedule.setTab('panelists')" style="display:none">
+      <button class="tab-btn" data-tab="panelists" data-group="people" onclick="nxneSchedule.setTab('panelists')">
         <span class="tab-btn-eyebrow">Voices at NXNE</span>
         <span class="tab-btn-name">Panelists</span>
       </button>
